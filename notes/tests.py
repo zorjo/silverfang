@@ -20,11 +20,11 @@ class CreateUserTest(TestCase):
             'password': 'testpass123'})
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.data['username'], 'testuser')
-        self.assertEqual(response.data['email'], 'a@b.com')
+        self.assertEqual(response.data['email'], 'abc@xyz.com')
 
 class NoteTestSearch(TestCase):
     def test_token(self):
-        User.objects.create(username='testuser',
+        user=User.objects.create(username='testuser',
         email='abc@xyz.com'
     )
         user.set_password('testpass123')
@@ -36,7 +36,7 @@ class NoteTestSearch(TestCase):
         token=response.data['token']
         Note.objects.create(user=user,title='This is central control',content='Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat')
         response=self.client.get(reverse('search'),{
-            'q': 'central control'},headers={'Authorization': 'Token '+token})
+            'q': 'consectetur adipiscing'},headers={'Authorization': 'Token '+token})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 1)
         """
