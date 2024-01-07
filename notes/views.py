@@ -93,7 +93,7 @@ def search(request):
     if query is None:
         return Response({'message': 'No query was provided'})
     #notes = Note.objects.filter(Q(title__icontains=query) | Q(content__icontains=query), user=request.user)
-    notes = Note.objects.annotate(search=SearchVector("title", "content")).filter(search=query)
+    notes = Note.objects.annotate(search=SearchVector("title", "content")).filter(search=query, user=request.user)
     serializer = NoteSerializer(notes, many=True)
     return Response(serializer.data)
     
