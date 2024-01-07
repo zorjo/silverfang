@@ -9,9 +9,16 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
-
+from dotenv import load_dotenv
+import os
+# Load environment variables from .env
+load_dotenv()
 from pathlib import Path
-
+DBHOST = os.getenv("DBHOST")
+DBNAME= os.getenv("DBNAME")
+DBPASS = os.getenv("DBPASS")
+DBPORT = os.getenv("DBPORT")
+MOREHOST= os.getenv("MOREHOST")
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -25,7 +32,7 @@ SECRET_KEY = 'django-insecure-jzsntawzm1+pz&d@cz%$uwebhp43097+t@=pnpt03q8-jy=asa
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['example-stipend.onrender.com']
+ALLOWED_HOSTS = [MOREHOST,'127.0.0.1', 'localhost']
 
 
 # Application definition
@@ -88,11 +95,11 @@ DATABASES = {
     'default': {
         #'ENGINE': 'django.db.backends.sqlite3',
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'railway',
+        'NAME': DBNAME,
         'USER': 'postgres',
-        'PASSWORD': 'e3CGA3-F4a4*fB34aac5bGBFab-fAEdc',
-        'HOST': 'monorail.proxy.rlwy.net',
-        'PORT': '13145',
+        'PASSWORD': DBPASS,
+        'HOST': DBHOST,
+        'PORT': DBPORT,
     }
 }
 
@@ -141,4 +148,13 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
     ],
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '100/day',  # Anonymous users
+        'user': '1000/day',  # Authenticated users
+        'burst': '10/min',  # Custom burst rate
+    }
 }

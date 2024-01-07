@@ -56,3 +56,15 @@ class ShowNotesAPITest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         expected_data = NoteSerializer([self.note1, self.note2, self.note3], many=True).data
         self.assertEqual(response.data, expected_data)
+class RegisterUserAPIViewTest(APITestCase):
+    def test_register_user(self):
+        url = reverse('register')
+        data = {
+            'username': 'testuser',
+            'password': 'testpassword',
+            'email': 'test@example.com'
+        }
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(User.objects.count(), 1)
+        self.assertEqual(User.objects.get().username, 'testuser')

@@ -50,34 +50,41 @@ def create_note(request):
     return Response(serializer.errors, status=400)
 
 
-@api_view(['GET'])
-def sho_user(request):
-    """
-    API endpoint that displays current user.
-    """
-    permission_classes = (IsAuthenticated,)
-    #user = User.objects.get(id=request.user.id)
-    return Response(request.user.email)
-
-@api_view(['GET'])
+@api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes([IsAuthenticated])
-def get_note_by_id(request,idx):
+def note_detail(request, idx):
     """
-    API endpoint that displays note by id.
+    API endpoint that displays, updates, or deletes a note by id.
     """
-    note = get_object_or_404(Note,id=idx)
+    note = get_object_or_404(Note, id=idx)
     serializer = NoteSerializer(note)
-    if note.user==request.user:
-        return Response(serializer.data)
 
-    return Response(serializer.errors, status=400)
+    if request.method == 'GET':
+        if note.user == request.user:
+            return Response(serializer.data)
+        else:
+            return Response({'message': 'You are not authorized to view this note'}, status=403)
 
-@api_view(['GET'])
-@permission_classes([AllowAny])
-def user_detail(request):
-    user = User.objects.get(id=request.user.id)
-    serializer = UserSerializer(user)
-    return Response(serializer.data)
+    elif request.method == 'PUT':
+        if note.user == request.user:
+            serializer = NoteSerializer(note, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=400)
+        else:
+            return Response({'message': 'You are not authorized to update this note'}, status=403)
+
+    elif request.method == 'DELETE':
+        if note.user == request.user:
+            note.delete()
+            return Response({'message': 'Note deleted successfully'})
+        else:
+            return Response({'message': 'You are not authorized to delete this note'}, status=403)
+
+
+
+
 
 class RegisterUserAPIView(generics.CreateAPIView):
   permission_classes = (AllowAny,)
@@ -96,4 +103,3 @@ def search(request):
     notes = Note.objects.annotate(search=SearchVector("title", "content")).filter(search=query, user=request.user)
     serializer = NoteSerializer(notes, many=True)
     return Response(serializer.data)
-    
