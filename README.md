@@ -79,18 +79,6 @@ This endpoint all the notes the authenticated user.
 
 **Headers:** Authorization: Token <your_auth_token>
 
-### List all Notes Endpoint
-
-This endpoint all the notes the authenticated user.
-
-**Endpoint:** `/api/notes/`
-
-**Method:** GET
-
-**Headers:** Authorization: Token <your_auth_token>
-
-
-
 ### Register User Endpoint
 
 This endpoint allows any user to register.
@@ -101,7 +89,7 @@ This endpoint allows any user to register.
 
 **Body:** 'username,password'
 
-### Register User Endpoint
+### Obtain Token Endpoint
 
 This endpoint allows any user to obtain their auth token
 
@@ -131,6 +119,9 @@ This endpoint allows viewing, deleting, and updating a specific note for the aut
 **Method:** GET,DELETE,PUT
 
 **Headers:** Authorization: Token <your_auth_token>
+
+## Testing
+The tests for this project can be found in the `notes/tests.py` file, as well as in the `notes/test_views.py` and `notes/test_models.py` modules.
 
 ## License
 
