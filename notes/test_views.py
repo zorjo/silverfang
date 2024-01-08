@@ -75,7 +75,7 @@ class NoteDetailAPITest(APITestCase):
         self.note = Note.objects.create(user=self.user, title='Test Note', content='This is a test note')
 
     def test_get_note_detail(self):
-        url = reverse('note_detail', args=[self.note.id])
+        url = reverse('note', args=[self.note.id])
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, NoteSerializer(self.note).data)
@@ -83,25 +83,25 @@ class NoteDetailAPITest(APITestCase):
     def test_get_note_detail_unauthorized(self):
         user2 = User.objects.create_user(username='testuser2', password='testpassword')
         self.client.force_authenticate(user=user2)
-        url = reverse('note_detail', args=[self.note.id])
+        url = reverse('note', args=[self.note.id])
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(response.data, {'message': 'You are not authorized to view this note'})
 
     def test_update_note_detail(self):
-        url = reverse('note_detail', args=[self.note.id])
+        url = reverse('note', args=[self.note.id])
         data = {
             'title': 'Updated Note',
             'content': 'This is an updated note'
         }
         response = self.client.put(url, data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, NoteSerializer(self.note).data)
+        self.assertEqual(response.data, data)
 
     def test_update_note_detail_unauthorized(self):
         user2 = User.objects.create_user(username='testuser2', password='testpassword')
         self.client.force_authenticate(user=user2)
-        url = reverse('note_detail', args=[self.note.id])
+        url = reverse('note', args=[self.note.id])
         data = {
             'title': 'Updated Note',
             'content': 'This is an updated note'
@@ -111,7 +111,7 @@ class NoteDetailAPITest(APITestCase):
         self.assertEqual(response.data, {'message': 'You are not authorized to update this note'})
 
     def test_delete_note_detail(self):
-        url = reverse('note_detail', args=[self.note.id])
+        url = reverse('note', args=[self.note.id])
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, {'message': 'Note deleted successfully'})
@@ -119,7 +119,7 @@ class NoteDetailAPITest(APITestCase):
     def test_delete_note_detail_unauthorized(self):
         user2 = User.objects.create_user(username='testuser2', password='testpassword')
         self.client.force_authenticate(user=user2)
-        url = reverse('note_detail', args=[self.note.id])
+        url = reverse('note', args=[self.note.id])
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(response.data, {'message': 'You are not authorized to delete this note'})
@@ -130,7 +130,7 @@ class CreateNoteAPITest(APITestCase):
         self.client.force_authenticate(user=self.user)
 
     def test_create_note(self):
-        url = reverse('create_note')
+        url = reverse('note_create')
         data = {
             'title': 'New Note',
             'content': 'This is a new note'
@@ -156,7 +156,7 @@ class CreateNoteAPITest(APITestCase):
         self.assertEqual(response.data, {'detail': 'Authentication credentials were not provided.'})
     
     def test_create_note_invalid_data(self):
-        url = reverse('create_note')
+        url = reverse('note_create')
         data = {
             'title': '',
             'content': 'This is a new note'
