@@ -123,3 +123,45 @@ class NoteDetailAPITest(APITestCase):
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(response.data, {'message': 'You are not authorized to delete this note'})
+
+class CreateNoteAPITest(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='testuser', password='testpassword')
+        self.client.force_authenticate(user=self.user)
+
+    def test_create_note(self):
+        url = reverse('create_note')
+        data = {
+            'title': 'New Note',
+            'content': 'This is a new note'
+        }
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Note.objects.count(), 1)
+        self.assertEqual(Note.objects.get().title, 'New Note')
+        self.assertEqual(Note.objects.get().content, 'This is a new note')
+        self.assertEqual(Note.objects.get().user, self.user)
+        self.assertEqual(response.data, {'id': Note.objects.get().id})
+    
+    def test_create_note_unauthenticated(self):
+        self.client.force_authenticate(user=None)
+        url = reverse('create_note')
+        data = {
+            'title': 'New Note',
+            'content': 'This is a new note'
+        }
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(Note.objects.count(), 0)
+        self.assertEqual(response.data, {'detail': 'Authentication credentials were not provided.'})
+    
+    def test_create_note_invalid_data(self):
+        url = reverse('create_note')
+        data = {
+            'title': '',
+            'content': 'This is a new note'
+        }
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(Note.objects.count(), 0)
+        self.assertEqual(response.data, {'title': ['This field may not be blank.']})
